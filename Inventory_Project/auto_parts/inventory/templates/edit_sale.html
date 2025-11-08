@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+  <!-- 🔹 Page Header -->
+  <div class="text-center mb-4">
+    <h3 class="fw-bold text-dark">
+      <i class="bi bi-pencil-square text-primary me-2"></i> Edit Sale / Invoice
+    </h3>
+    <p class="text-muted fs-6 mb-0">Update sale and pricing details below</p>
+  </div>
+
+  <!-- 🔹 Form Card -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto animate__animated animate__fadeIn" style="max-width: 800px;">
+    <div class="card-header text-white text-center fw-semibold fs-5"
+         style="background: linear-gradient(90deg, #6a11cb, #2575fc);">
+      <i class="bi bi-pencil-fill me-2"></i> Sale Edit Form
+    </div>
+
+    <div class="card-body px-3 px-md-4 py-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- Customer Name -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Customer Name</label>
+          <input type="text" name="customer" class="form-control glow-input"
+                 value="{{ sale.customer.name }}" required>
+        </div>
+
+        <!-- Product Name -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Product Name</label>
+          <input type="text" name="product" class="form-control glow-input"
+                 value="{{ sale.product.name }}" required>
+        </div>
+
+        <!-- Unit Price -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Unit Price (₹)</label>
+          <input type="number" name="price" id="unit_price" class="form-control glow-input"
+                 value="{{ sale.product.price }}" step="0.01" required>
+        </div>
+
+        <!-- Quantity -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Quantity</label>
+          <input type="number" name="quantity_sold" id="quantity_sold" class="form-control glow-input"
+                 value="{{ sale.quantity_sold }}" min="1" required>
+        </div>
+
+        <!-- Discount -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Discount (%)</label>
+          <input type="number" name="discount" id="discount" class="form-control glow-input"
+                 value="{{ sale.discount|default:0 }}" step="0.01" min="0" max="100">
+        </div>
+
+        <!-- GST -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">GST (%)</label>
+          <input type="number" name="gst" id="gst" class="form-control glow-input"
+                 value="{{ sale.gst|default:0 }}" step="0.01" min="0" max="100">
+        </div>
+
+        <!-- Total Price -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Total (₹)</label>
+          <input type="number" name="total_price" id="total_price" class="form-control bg-light glow-input"
+                 value="{{ sale.total_price }}" readonly>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Status</label>
+          <select name="status" class="form-select glow-input">
+            <option value="Pending" {% if sale.status == "Pending" %}selected{% endif %}>Pending</option>
+            <option value="Invoiced" {% if sale.status == "Invoiced" %}selected{% endif %}>Invoiced</option>
+            <option value="Paid" {% if sale.status == "Paid" %}selected{% endif %}>Paid</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="text-center mt-4 d-flex justify-content-center flex-wrap gap-3">
+          <button type="submit" class="btn btn-gradient px-5 py-2 glow-button">
+            <i class="bi bi-save me-1"></i> Save Changes
+          </button>
+          <a href="{% url 'invoice_list' %}" class="btn btn-outline-secondary px-5 py-2 glow-button">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🔧 Auto Calculation JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const qtyInput = document.getElementById('quantity_sold');
+    const priceInput = document.getElementById('unit_price');
+    const discountInput = document.getElementById('discount');
+    const gstInput = document.getElementById('gst');
+    const totalInput = document.getElementById('total_price');
+
+    function updateTotal() {
+      const qty = parseFloat(qtyInput.value) || 0;
+      const price = parseFloat(priceInput.value) || 0;
+      const discount = parseFloat(discountInput.value) || 0;
+      const gst = parseFloat(gstInput.value) || 0;
+
+      let subtotal = qty * price;
+      let afterDiscount = subtotal - (subtotal * (discount / 100));
+      let afterGST = afterDiscount + (afterDiscount * (gst / 100));
+
+      totalInput.value = afterGST.toFixed(2);
+    }
+
+    [qtyInput, priceInput, discountInput, gstInput].forEach(input => {
+      input.addEventListener('input', updateTotal);
+    });
+
+    updateTotal(); // Initialize on load
+  });
+</script>
+
+<!-- 🎨 Styling -->
+<style>
+  .glow-input {
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #343a40;
+    background-color: #fff;
+    color: #212529;
+  }
+
+  .glow-input:hover, .glow-input:focus {
+    border-color: #2575fc;
+    box-shadow: 0 0 10px rgba(37, 117, 252, 0.4);
+    outline: none;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .btn-gradient:hover {
+    background: linear-gradient(to right, #520dc2, #0056b3);
+    box-shadow: 0 0 15px rgba(37, 117, 252, 0.6);
+    transform: translateY(-2px);
+  }
+
+  .glow-button:hover {
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    transform: scale(1.02);
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+  }
+
+  @media (max-width: 576px) {
+    .btn-gradient, .btn-outline-secondary {
+      width: 100%;
+    }
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

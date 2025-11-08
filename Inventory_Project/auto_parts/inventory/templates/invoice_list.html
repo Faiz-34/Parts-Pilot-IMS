@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <!-- 🔹 Page Header -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <h2 class="fs-3 fw-bold text-dark mb-0 d-flex align-items-center">
+      <i class="bi bi-receipt-cutoff text-primary me-2 fs-3"></i> Invoice List
+    </h2>
+  </div>
+
+  <!-- 🔹 Invoice Table -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto overflow-hidden" style="max-width: 100%;">
+    <div class="card-header text-white fw-bold fs-5 text-center py-3"
+         style="background: linear-gradient(90deg, #6a11cb, #2575fc, #00c6ff); letter-spacing: 0.5px;">
+      <i class="bi bi-clipboard-data-fill me-2 fs-4"></i> All Invoices
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive table-scroll-wrapper">
+        <table class="table table-hover table-bordered align-middle mb-0 text-center shadow-sm border-dark" style="min-width: 1100px;">
+          <thead class="table-light border-bottom">
+            <tr class="align-middle bg-light fw-semibold text-dark">
+              <th><i class="bi bi-hash text-primary me-1"></i> S.No</th>
+              <th><i class="bi bi-file-earmark-text text-info me-1"></i> Invoice No</th>
+              <th><i class="bi bi-person-fill text-success me-1"></i> Customer</th>
+              <th><i class="bi bi-telephone-fill text-warning me-1"></i> Phone</th>
+              <th><i class="bi bi-box-seam text-primary me-1"></i> Product</th>
+              <th><i class="bi bi-bag-check-fill text-secondary me-1"></i> Qty</th>
+              <th><i class="bi bi-currency-rupee text-success me-1"></i> Total</th>
+              <th><i class="bi bi-calendar-event text-danger me-1"></i> Date</th>
+              <th><i class="bi bi-flag-fill text-info me-1"></i> Status</th>
+              <th><i class="bi bi-gear-fill text-dark me-1"></i> Actions</th>
+            </tr>
+          </thead>
+
+          <tbody class="fs-6">
+            {% for invoice in invoices %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><span class="fw-bold text-primary">{{ invoice.invoice_no }}</span></td>
+
+              <td>
+                {% if invoice.customer_name %}
+                  {{ invoice.customer_name }}
+                {% elif invoice.sale.customer %}
+                  {{ invoice.sale.customer.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if invoice.customer_phone %}
+                  {{ invoice.customer_phone }}
+                {% elif invoice.sale.customer %}
+                  {{ invoice.sale.customer.phone }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if invoice.override_product_name %}
+                  {{ invoice.override_product_name }}
+                {% elif invoice.sale.product %}
+                  {{ invoice.sale.product.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if invoice.override_quantity %}
+                  {{ invoice.override_quantity }}
+                {% elif invoice.sale.quantity_sold %}
+                  {{ invoice.sale.quantity_sold }}
+                {% else %}
+                  0
+                {% endif %}
+              </td>
+
+              <td class="fw-semibold text-success">
+                ₹{{ invoice.total|floatformat:2 }}
+              </td>
+
+              <td>
+                {% if invoice.created_at %}
+                  {{ invoice.created_at|date:"d M Y" }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if invoice.status == 'Paid' %}
+                  <span class="badge bg-success px-2 py-1"><i class="bi bi-check-circle me-1"></i> Paid</span>
+                {% elif invoice.status == 'Partial' %}
+                  <span class="badge bg-info text-dark px-2 py-1"><i class="bi bi-hourglass-split me-1"></i> Partial</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark px-2 py-1"><i class="bi bi-exclamation-circle me-1"></i> Unpaid</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                  <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-sm btn-outline-secondary rounded-circle shadow-sm" title="View">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <a href="{% url 'edit_invoice' invoice.id %}" class="btn btn-sm btn-outline-primary rounded-circle shadow-sm" title="Edit">
+                    <i class="bi bi-pencil-square"></i>
+                  </a>
+                  <a href="{% url 'delete_invoice' invoice.id %}" class="btn btn-sm btn-outline-danger rounded-circle shadow-sm" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                  {% if invoice.status != 'Paid' %}
+                  <a href="{% url 'mark_invoice_paid' invoice.id %}" class="btn btn-sm btn-outline-success rounded-circle shadow-sm" title="Mark Paid">
+                    <i class="bi bi-check2-circle"></i>
+                  </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="10" class="text-center text-muted py-4">
+                <i class="bi bi-receipt-cutoff me-2"></i> No invoices found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🎨 CSS -->
+<style>
+  .btn-gradient {
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+  }
+  .btn-gradient:hover {
+    background: linear-gradient(90deg, #520dc2, #0056b3);
+    box-shadow: 0 0 12px rgba(37, 117, 252, 0.6);
+    transform: translateY(-2px);
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #eef3ff;
+    transition: all 0.2s ease;
+  }
+
+  .table th, .table td {
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    padding: 12px 10px;
+    border: 1px solid #343a40 !important;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+  }
+
+  .card {
+    border: 1px solid #dee2e6;
+  }
+
+  @media (max-width: 768px) {
+    .btn-gradient {
+      width: 100%;
+    }
+    .table th, .table td {
+      font-size: 0.85rem;
+      padding: 10px 8px;
+    }
+  }
+  .table-scroll-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  max-width: 100%;
+  padding-bottom: 4px;
+}
+
+.table-scroll-wrapper:hover {
+  cursor: grab;
+}
+
+.table-scroll-wrapper:active {
+  cursor: grabbing;
+}
+.table-scroll-wrapper {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+</style>
+
+<script>
+  const wrapper = document.querySelector('.table-scroll-wrapper');
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+
+  wrapper.addEventListener('mousedown', (e) => {
+    isDown = true;
+    wrapper.classList.add('active');
+    startX = e.pageX - wrapper.offsetLeft;
+    scrollLeft = wrapper.scrollLeft;
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    isDown = false;
+    wrapper.classList.remove('active');
+  });
+
+  wrapper.addEventListener('mouseup', () => {
+    isDown = false;
+    wrapper.classList.remove('active');
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - wrapper.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walk;
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <!-- 🔹 Page Title -->
+  <div class="mb-4 text-center">
+    <h2 class="fs-2 fw-bold text-gradient">
+      <i class="bi bi-bar-chart-fill me-2"></i> Sales Overview
+    </h2>
+    <p class="text-muted">Visual breakdown of sales across each month</p>
+  </div>
+
+  <!-- 🔹 Summary Cards -->
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-5 justify-content-center">
+
+    <!-- ✅ Your Stock -->
+    <div class="col">
+      <a href="{% url 'product_list' %}" class="text-decoration-none">
+        <div class="card text-white shadow-sm h-100 hover-card rounded-4" style="background: linear-gradient(to right, #007bff, #00c6ff);">
+          <div class="card-body text-center">
+            <i class="bi bi-box-seam fs-2 mb-2"></i>
+            <h6 class="card-title">Your Stock</h6>
+            <h3 class="fw-bold">{{ total_stock }}</h3>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- ✅ Total Sales -->
+    <div class="col">
+      <a href="{% url 'sale_list' %}" class="text-decoration-none">
+        <div class="card text-white shadow-sm h-100 hover-card rounded-4" style="background: linear-gradient(to right, #6f42c1, #d291ff);">
+          <div class="card-body text-center">
+            <i class="bi bi-cart-check fs-2 mb-2"></i>
+            <h6 class="card-title">Total Sales</h6>
+            <h3 class="fw-bold">{{ total_sales }}</h3>
+            <p class="text-white-50 small">Click to view all sales</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- ✅ Revenue This Month -->
+    <div class="col">
+      <div class="card text-white shadow-sm h-100 hover-card rounded-4" style="background: linear-gradient(to right, #0d6efd, #6ea8fe);">
+        <div class="card-body text-center">
+          <i class="bi bi-calendar2-week fs-2 mb-2"></i>
+          <h6 class="card-title">Revenue This Month</h6>
+          <h3 class="fw-bold">₹{{ revenue_this_month|floatformat:2 }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Paid Invoices -->
+    <div class="col">
+      <div class="card text-white shadow-sm h-100 hover-card rounded-4" style="background: linear-gradient(to right, #198754, #28c76f);">
+        <div class="card-body text-center">
+          <i class="bi bi-check-circle-fill fs-2 mb-2"></i>
+          <h6 class="card-title">Paid Invoices</h6>
+          <h3 class="fw-bold">{{ paid_invoices }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Unpaid Invoices -->
+    <div class="col">
+      <div class="card text-white shadow-sm h-100 hover-card rounded-4" style="background: linear-gradient(to right, #dc3545, #ff6b6b);">
+        <div class="card-body text-center">
+          <i class="bi bi-exclamation-triangle-fill fs-2 mb-2"></i>
+          <h6 class="card-title">Unpaid Invoices</h6>
+          <h3 class="fw-bold">{{ unpaid_invoices }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Monthly Sales Bar Chart -->
+  <h2 class="fs-3 fw-bold text-gradient mb-3">
+    <i class="bi bi-graph-up-arrow me-2"></i> Monthly Sales Count
+  </h2>
+
+  <div class="card shadow-sm rounded-4">
+    <div class="card-body">
+      <div style="height: 350px;">
+        <canvas id="monthlySalesChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const ctx = document.getElementById('monthlySalesChart').getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, '#007bff');
+      gradient.addColorStop(1, '#6f42c1');
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: {{ months|safe }},
+          datasets: [{
+            label: 'Monthly Sales',
+            data: {{ monthly_sales_data|safe }},
+            backgroundColor: gradient,
+            borderColor: '#6f42c1',
+            borderWidth: 1,
+            borderRadius: 8,
+            barThickness: 30
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1500,
+            easing: 'easeOutBounce'
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#343a40',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              cornerRadius: 6
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: '#495057', font: { weight: 500 } },
+              grid: { color: '#dee2e6' }
+            },
+            x: {
+              ticks: { color: '#495057', font: { weight: 500 } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    });
+  </script>
+
+  <!-- 🔧 Styles -->
+  <style>
+    .hover-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 1rem;
+    }
+    .hover-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+    .text-gradient {
+      background: linear-gradient(to right, #007bff, #6f42c1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+
+</div>
+
+{% endblock %}

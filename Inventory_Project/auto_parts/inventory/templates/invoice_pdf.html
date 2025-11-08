@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice #{{ invoice.invoice_no }}</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">  <!-- ✅ Direct path for PDF -->
+  <style>
+    body { font-size: 14px; }
+    .invoice-box {
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #eee;
+      background: #fff;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+    }
+    .shop-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .shop-header h2 {
+      margin: 0;
+      font-weight: bold;
+    }
+    .shop-header p {
+      margin: 0;
+      font-size: 13px;
+    }
+    .summary-table th {
+      width: 60%;
+    }
+    @media print {
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="invoice-box">
+  <!-- 🏪 Shop Info -->
+  <div class="shop-header">
+    <h2>{{ profile.shop_name }}</h2>
+    <p>{{ profile.address }}</p>
+    <p>Contact: {{ profile.phone }} | GSTIN: {{ profile.gstin }}</p>
+  </div>
+
+  <!-- 📄 Invoice Meta -->
+  <div class="row mb-3">
+    <div class="col-6">
+      <strong>Invoice No:</strong> {{ invoice.invoice_no }}<br>
+      <strong>Date:</strong> {{ invoice.created_at|date:"d M Y" }}
+    </div>
+    <div class="col-6 text-end">
+      <strong>Customer:</strong> {{ invoice.sale.customer.name }}<br>
+      <strong>Status:</strong>
+      {% if invoice.status == 'Paid' %}
+        <span class="badge bg-success">Paid</span>
+      {% else %}
+        <span class="badge bg-warning text-dark">Unpaid</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 📋 Product Table -->
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ invoice.sale.product.name }}</td>
+        <td>{{ invoice.sale.quantity_sold }}</td>
+        <td>₹{{ invoice.sale.product.price }}</td>
+        <td>₹{{ invoice.sale.total_price }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 💰 Summary -->
+  <table class="table table-bordered mt-4 summary-table">
+    <tbody>
+      <tr>
+        <th class="bg-light">Subtotal</th>
+        <td>₹{{ invoice.sale.total_price }}</td>
+      </tr>
+      <tr>
+        <th class="bg-light">
+          <i class="bi bi-tag-fill text-danger me-1"></i> Discount ({{ invoice.discount }}%)
+        </th>
+        <td class="text-danger">– ₹{{ invoice.discount_amount }}</td>
+      </tr>
+      <tr>
+        <th class="bg-light">
+          <i class="bi bi-receipt-cutoff text-success me-1"></i> GST ({{ invoice.gst }}%)
+        </th>
+        <td class="text-success">+ ₹{{ invoice.gst_amount }}</td>
+      </tr>
+      <tr>
+        <th class="bg-light text-primary">Grand Total</th>
+        <td class="fw-bold text-primary">₹{{ invoice.total_amount }}</td>
+      </tr>
+      <tr>
+        <th class="bg-light">Cash Received</th>
+        <td>₹{{ invoice.cash_received }}</td>
+      </tr>
+      <tr>
+        <th class="bg-light">
+          <i class="bi bi-cash-coin text-danger me-1"></i> Balance Due
+        </th>
+        <td class="text-danger">₹{{ invoice.balance_due }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 🖨️ Print Button -->
+  <div class="text-center mt-4 no-print">
+    <button onclick="window.print()" class="btn btn-outline-primary">
+      <i class="bi bi-printer me-1"></i> Print Invoice
+    </button>
+  </div>
+</div>
+
+</body>
+</html>

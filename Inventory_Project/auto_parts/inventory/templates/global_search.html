@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-3">
+
+  <!-- 🔹 Page Title -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">
+      <i class="bi bi-search text-primary me-2"></i> Search Results for: "{{ query }}"
+    </h2>
+  </div>
+
+  <!-- 🔹 Products -->
+  {% if products %}
+    <h4 class="text-primary mt-4"><i class="bi bi-box-seam me-2"></i> Products</h4>
+    <ul class="list-group mb-4">
+      {% for product in products %}
+        <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+          <span>{{ product.name }} (SKU: {{ product.sku }})</span>
+          <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-primary">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- 🔹 Customers -->
+  {% if customers %}
+    <h4 class="text-info mt-4"><i class="bi bi-people-fill me-2"></i> Customers</h4>
+    <ul class="list-group mb-4">
+      {% for customer in customers %}
+        <li class="list-group-item">
+          {{ customer.name }} {% if customer.email %} ({{ customer.email }}) {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- 🔹 Invoices -->
+  {% if invoices %}
+    <h4 class="text-danger mt-4"><i class="bi bi-journal-text me-2"></i> Invoices</h4>
+    <ul class="list-group mb-4">
+      {% for invoice in invoices %}
+        <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+          <span>Invoice #{{ invoice.invoice_no }} — {{ invoice.sale.customer.name }}</span>
+          <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-sm btn-outline-danger">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- 🔹 Sales -->
+  {% if sales %}
+    <h4 class="text-success mt-4"><i class="bi bi-cart-check me-2"></i> Sales</h4>
+    <ul class="list-group mb-4">
+      {% for sale in sales %}
+        <li class="list-group-item">
+          {{ sale.product.name }} sold to {{ sale.customer.name }} on {{ sale.date|date:"M d, Y" }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if not products and not customers and not invoices and not sales %}
+    <div class="alert alert-warning text-center mt-5">
+      <i class="bi bi-exclamation-circle me-2"></i> No results found for "{{ query }}"
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

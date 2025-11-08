@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <!-- 🔹 Page Title -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">
+      <i class="bi bi-pencil-square text-primary me-2"></i> Edit Product
+    </h2>
+    <p class="text-muted fs-6 mb-0">Update product details below</p>
+  </div>
+
+  <!-- 🔹 Form Card -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto animate__animated animate__fadeIn" style="max-width: 720px;">
+    <div class="card-header text-white text-center fw-semibold fs-5"
+         style="background: linear-gradient(90deg, #0d6efd, #3a86ff);">
+      <i class="bi bi-pencil-square me-2"></i> Product Edit Form
+    </div>
+
+    <div class="card-body px-4 py-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="row">
+          <!-- 🔸 Product Name -->
+          <div class="col-12 mb-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-tag text-success me-1"></i> Product Name
+            </label>
+            <input type="text" name="name" class="form-control glow-input" value="{{ product.name }}" required>
+          </div>
+
+          <!-- 🔸 Quantity -->
+          <div class="col-12 col-md-6 mb-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-hash text-danger me-1"></i> Quantity
+            </label>
+            <input type="number" name="quantity" class="form-control glow-input" value="{{ product.quantity }}" min="0">
+          </div>
+
+          <!-- 🔸 Price -->
+          <div class="col-12 col-md-6 mb-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-currency-rupee text-primary me-1"></i> Price (₹)
+            </label>
+            <input type="number" name="price" class="form-control glow-input" value="{{ product.price }}" step="0.01" required>
+          </div>
+
+          <!-- 🔸 Reorder Level -->
+          <div class="col-12 mb-4">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-arrow-repeat text-info me-1"></i> Reorder Level
+            </label>
+            <input type="number" name="reorder_level" class="form-control glow-input" value="{{ product.reorder_level }}" min="0">
+          </div>
+        </div>
+
+        <!-- 🔸 Submit Button -->
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-primary px-5 py-2 glow-button">
+            <i class="bi bi-check-circle me-1"></i> Update Product
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🎨 Styling -->
+<style>
+  .glow-input {
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid #495057;
+    background-color: #fff;
+    color: #212529;
+  }
+
+  .glow-input:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.35);
+  }
+
+  .glow-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.55);
+    outline: none;
+  }
+
+  .glow-button:hover {
+    background-color: #0b5ed7;
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
+    transform: translateY(-2px);
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

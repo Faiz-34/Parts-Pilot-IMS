@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PartsPilot IMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f3f5;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* 🔹 Navbar */
+    .navbar-custom {
+      background: linear-gradient(to right, #38b6ff, #6f42c1);
+      color: white;
+      height: 56px;
+      z-index: 1100;
+    }
+
+    /* 🔹 Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 56px; /* Navbar ke niche */
+      left: 0;
+      width: 250px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+      background: linear-gradient(to bottom right, #1e2a38, #2c3e50);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1050;
+      transition: left 0.3s ease;
+    }
+
+    .sidebar a {
+      color: #f0f4f8;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      font-weight: 500;
+      display: block;
+    }
+
+    .sidebar a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #38b6ff;
+    }
+
+    .active-link {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #38b6ff !important;
+      font-weight: 600;
+    }
+
+    /* 🔹 Gradient Button */
+    .btn-gradient {
+      background: linear-gradient(to right, #38b6ff, #6f42c1);
+      color: white;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .btn-gradient:hover {
+      box-shadow: 0 0 15px rgba(142, 148, 251, 0.6);
+      transform: scale(1.03);
+    }
+
+    /* 🔹 Main Content */
+    main {
+      margin-left: 250px;
+      padding: 60px 25px 25px 25px; /* Top padding fixed (navbar space) */
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* 🔹 Mobile View */
+    @media (max-width: 991px) {
+      .sidebar {
+        left: -250px;
+        transition: left 0.3s ease;
+      }
+
+      .sidebar.show {
+        left: 0;
+      }
+
+      main {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 56px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 56px);
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 1040;
+      }
+
+      .overlay.show {
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<!-- 🔷 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm fixed-top">
+  <div class="container-fluid justify-content-between">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm text-white d-lg-none" onclick="toggleSidebar()" style="background: transparent; border: none;">
+        <i class="bi bi-list fs-4"></i>
+      </button>
+      <a class="navbar-brand d-flex align-items-center gap-2 ms-3" href="#">
+        <i class="bi bi-tools fs-3 text-white"></i>
+        <span class="fs-4 fw-semibold text-white">PartsPilot <span class="fw-light">IMS</span></span>
+      </a>
+    </div>
+    <form class="d-flex ms-auto" method="get" action="{% url 'global_search' %}" style="max-width: 300px;">
+      <input class="form-control me-2" type="search" name="q" placeholder="Search anything..." aria-label="Search">
+      <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+  </div>
+</nav>
+
+<!-- 📱 Mobile Sidebar Overlay -->
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<!-- 🧭 Sidebar -->
+<div id="sidebar" class="sidebar px-3 py-3 d-lg-block">
+  <ul class="nav flex-column gap-2">
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active-link{% endif %}" href="{% url 'dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active-link{% endif %}" href="{% url 'product_list' %}"><i class="bi bi-box-seam me-2"></i> Products</a></li>
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'add_product' %}active-link{% endif %}" href="{% url 'add_product' %}"><i class="bi bi-plus-square me-2"></i> Add Product</a></li>
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'customer_list' %}active-link{% endif %}" href="{% url 'customer_list' %}"><i class="bi bi-people-fill me-2"></i> Customers</a></li>
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'create_sale' %}active-link{% endif %}" href="{% url 'create_sale' %}"><i class="bi bi-cart-plus me-2"></i> Create Sale</a></li>
+    <li><a class="nav-link {% if request.resolver_match.url_name == 'invoice_list' %}active-link{% endif %}" href="{% url 'invoice_list' %}"><i class="bi bi-journal-text me-2"></i> Invoices</a></li>
+    <li class="mt-4">
+      <a href="{% url 'admin:index' %}" target="_blank" class="btn btn-gradient w-100 d-flex align-items-center justify-content-center gap-2 py-2">
+        <i class="bi bi-person-gear fs-6"></i> Admin
+      </a>
+    </li>
+    {% if recent_invoices %}
+    <li class="nav-item dropdown mt-3">
+      <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+        <i class="bi bi-clock-history"></i> Recent Invoices
+      </a>
+      <ul class="dropdown-menu">
+        {% for invoice in recent_invoices %}
+        <li><a class="dropdown-item" href="{% url 'invoice_detail' invoice.id %}">{{ invoice.invoice_number }}</a></li>
+        {% endfor %}
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-primary" href="{% url 'invoice_list' %}">View All Invoices</a></li>
+      </ul>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+
+<!-- 📄 Main Content -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('show');
+    document.getElementById('overlay').classList.toggle('show');
+  }
+</script>
+</body>
+</html>

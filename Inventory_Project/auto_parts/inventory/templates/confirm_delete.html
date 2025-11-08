@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-5">
+
+  <!-- 🔹 Page Title -->
+  <div class="text-center mb-4">
+    <h3 class="fw-bold text-dark">
+      <i class="bi bi-trash-fill text-danger me-2"></i> Confirm Delete
+    </h3>
+    <p class="text-muted fs-6 mb-0">Are you sure you want to permanently delete this sale?</p>
+  </div>
+
+  <!-- 🔹 Card -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto animate__animated animate__fadeIn" style="max-width: 600px;">
+    
+    <div class="card-header text-white text-center fw-semibold fs-5"
+         style="background: linear-gradient(90deg, #ff416c, #ff4b2b);">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> Warning!
+    </div>
+
+    <div class="card-body px-3 px-md-4 py-4 text-center">
+      <p class="fs-6 mb-4">This action <strong>cannot be undone</strong>.</p>
+      <p class="fw-bold mb-4">{{ object }}</p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+          <button type="submit" class="btn btn-gradient px-5 py-2 glow-button">
+            <i class="bi bi-trash me-1"></i> Delete
+          </button>
+          <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary px-5 py-2 glow-button">
+            <i class="bi bi-x-circle me-1"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🎨 Styling -->
+<style>
+  .btn-gradient {
+    background: linear-gradient(to right, #ff416c, #ff4b2b);
+    color: white;
+    border: none;
+  }
+  .btn-gradient:hover {
+    background: linear-gradient(to right, #e03b5b, #d0382a);
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+  .glow-button {
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+  .glow-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
+  }
+  .card:hover {
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+  }
+</style>
+
+<!-- 🔧 Optional Animation -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <!-- 🔹 Page Title -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">
+      <i class="bi bi-person-vcard text-secondary me-2"></i> Customer Details
+    </h2>
+    <p class="text-muted fs-6 mb-0">Full information of the selected customer</p>
+  </div>
+
+  <!-- 🔹 Customer Card -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto animate__animated animate__fadeIn" style="max-width: 720px;">
+    <div class="card-header text-white text-center fw-semibold fs-5"
+         style="background: linear-gradient(90deg, #6c757d, #adb5bd);">
+      <i class="bi bi-person-lines-fill me-2"></i> {{ customer.name }}
+    </div>
+
+    <div class="card-body px-4 py-4">
+      <ul class="list-group list-group-flush fs-6">
+        <li class="list-group-item">
+          <strong><i class="bi bi-person me-2 text-primary"></i> Name:</strong> {{ customer.name }}
+        </li>
+        <li class="list-group-item">
+          <strong><i class="bi bi-envelope me-2 text-warning"></i> Email:</strong> {{ customer.email }}
+        </li>
+        <li class="list-group-item">
+          <strong><i class="bi bi-telephone me-2 text-danger"></i> Phone:</strong> {{ customer.phone }}
+        </li>
+      </ul>
+
+      <!-- 🔹 Action Buttons -->
+      <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'edit_customer' customer.id %}" class="btn btn-outline-primary">
+          <i class="bi bi-pencil-square me-1"></i> Edit
+        </a>
+        <a href="{% url 'delete_customer' customer.id %}" class="btn btn-outline-danger">
+          <i class="bi bi-trash me-1"></i> Delete
+        </a>
+        <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔧 UI Polish -->
+<style>
+  .card:hover {
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+  }
+  .btn:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+  }
+</style>
+
+<!-- 🔧 Optional Animation -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

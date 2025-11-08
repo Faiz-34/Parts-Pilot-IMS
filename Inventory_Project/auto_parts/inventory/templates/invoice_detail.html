@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- ✅ External Libraries -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<div class="container-fluid px-3 px-md-5 py-4" style="background-color: #f4f6fa;">
+  <div id="invoice-box" class="card shadow-lg rounded-4 mx-auto mb-4" style="max-width: 750px; border: 1px solid #999;">
+    
+    <!-- 🔹 Header -->
+    <div class="card-header text-white text-center fw-semibold fs-5 py-3"
+         style="background: linear-gradient(to right, #6a11cb, #2575fc); border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+      <i class="fa fa-receipt me-2"></i> Invoice #{{ invoice.invoice_no }}
+    </div>
+
+    <!-- 🔹 Body -->
+    <div class="card-body px-3 px-md-4 py-4 bg-white rounded-bottom-4">
+
+      <!-- 🔹 Business & Customer Info -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h6 class="fw-bold text-primary">From</h6>
+          <p class="mb-0">{{ profile.name}}</p>
+          <p class="mb-0">{{ profile.address|default:"N/A" }}</p>
+          <p class="mb-0">GSTIN: {{ profile.gstin|default:"N/A" }}</p>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+          <h6 class="fw-bold text-primary">To</h6>
+          <p class="mb-0">{{ invoice.sale.customer.name|default:"Customer Deleted" }}</p>
+          <p class="mb-0">Phone: {{ invoice.customer_phone|default:"N/A" }}</p>
+        </div>
+      </div>
+
+      <!-- 🔹 Invoice Meta -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <p><strong>Invoice Date:</strong> {{ invoice.created_at|date:"d M Y" }}</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p><strong>Status:</strong>
+            {% if invoice.status == 'Paid' %}
+              <span class="badge bg-success">Paid</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">Unpaid</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- 🔹 Product Table -->
+      <div class="table-responsive mb-4">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th class="text-end">Qty</th>
+              <th class="text-end">Unit Price</th>
+              <th class="text-end">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ invoice.override_product_name|default:"-" }}</td>
+                <td class="text-center">{{ invoice.override_quantity }}</td>
+                <td class="text-end">{{ invoice.override_unit_price }}</td>
+                <td class="text-end">{{ invoice.total }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 🔹 Totals Breakdown -->
+      <div class="row justify-content-end">
+        <div class="col-12 col-md-6">
+          <table class="table table-sm table-bordered border-secondary">
+            <tbody>
+              <tr>
+                <th class="bg-light text-muted">Subtotal</th>
+                <td class="text-end">₹{{ subtotal }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light text-muted">
+                  <i class="fa fa-tag text-danger me-1"></i> Discount ({{ invoice.discount }}%)
+                </th>
+                <td class="text-end text-danger">– ₹{{ invoice.discount|default:"0" }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light text-muted">
+                  <i class="fa fa-receipt text-success me-1"></i> GST ({{ invoice.gst }}%)
+                </th>
+                <td class="text-end text-success">+ ₹{{ invoice.gst|default:"0" }}</td>
+              </tr>
+              <tr class="border-top border-dark">
+                <th class="bg-light text-dark">Grand Total</th>
+                <td class="text-end fw-bold text-dark">₹{{ invoice.total_amount|default:subtotal }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 🔹 Summary Block -->
+      <div class="border border-secondary rounded-3 p-3 mt-3">
+        <div class="d-flex justify-content-between flex-wrap">
+          <span class="fw-semibold text-muted">Cash Received:</span>
+          <span class="fw-semibold">₹{{ invoice.cash_received|default:"0" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Action Buttons -->
+<div class="container text-center d-flex justify-content-center flex-wrap gap-3 mt-3">
+  <button onclick="downloadInvoicePDF()" class="btn btn-gradient px-4 py-2 fw-semibold">
+    <i class="fa fa-file-pdf me-1"></i> Export PDF
+  </button>
+  <button onclick="window.print()" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
+    <i class="fa fa-print me-1"></i> Print
+  </button>
+  <a href="{% url 'invoice_list' %}" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
+    <i class="fa fa-arrow-left me-1"></i> Back
+  </a>
+</div>
+
+<!-- ✅ PDF Export Script -->
+<script>
+function downloadInvoicePDF() {
+  const element = document.getElementById("invoice-box");
+  const opt = {
+    margin: 0.2,
+    filename: 'invoice_{{ invoice.invoice_no }}.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, scrollY: 0, useCORS: true },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+</script>
+
+<!-- 🔧 Styling -->
+<style>
+  .btn-gradient {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: 0.3s ease;
+  }
+  .btn-gradient:hover {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 117, 252, 0.3);
+  }
+</style>
+
+{% endblock %}

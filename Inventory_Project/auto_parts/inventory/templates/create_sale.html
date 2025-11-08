@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-4" style="background-color: #f8f9fa; min-height: 100vh;">
+  <!-- 🔹 Page Header -->
+  <div class="text-center mb-2">
+    <h3 class="fw-bold text-dark">
+      <i class="bi bi-cart-plus text-success me-2"></i> Create Sale
+    </h3>
+    <p class="text-muted fs-4 mb-0">Enter sale details below</p>
+  </div>
+
+  <div class="d-flex justify-content-end mb-3">
+  <a href="{% url 'sale_list' %}" class="btn btn-outline-success fw-semibold">
+    <i class="bi bi-list-ul me-1"></i> View Sale List
+  </a>
+</div>
+
+  <!-- 🔹 Form Card -->
+  <div class="card shadow-lg border-0 rounded-4 mx-auto animate__animated animate__fadeIn" style="max-width: 900px; width: 100%;">
+    <div class="card-header text-white text-center fw-semibold fs-5"
+         style="background: linear-gradient(90deg, #198754, #28a745);">
+      <i class="bi bi-receipt me-2"></i> Sale Entry Form
+    </div>
+
+    <div class="card-body px-3 px-md-4 py-4">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+          <!-- Column 1 -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Customer Name</label>
+            <input type="text" name="customer" class="form-control dark-input" required>
+
+            <label class="form-label fw-semibold mt-3">Product Name</label>
+            <input type="text" name="product_name" class="form-control dark-input" required>
+
+            <label class="form-label fw-semibold mt-3">Quantity</label>
+            <input type="number" name="quantity" class="form-control dark-input" min="1" required>
+
+            <label class="form-label fw-semibold mt-3">GST (%)</label>
+            <input type="number" name="gst" class="form-control dark-input" value="18" step="0.01">
+
+            <label class="form-label fw-semibold mt-3">Status</label>
+            <select name="status" class="form-control dark-input">
+              <option value="Pending">Pending</option>
+              <option value="Invoiced">Invoiced</option>
+            </select>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Phone Number</label>
+            <input type="tel" name="phone" class="form-control dark-input" pattern="[0-9]{10}" maxlength="10" required>
+
+            <label class="form-label fw-semibold mt-3">Price (₹)</label>
+            <input type="number" name="price" class="form-control dark-input" step="0.01" required>
+
+            <label class="form-label fw-semibold mt-3">Total Price</label>
+            <input type="number" id="total_price" class="form-control dark-input" readonly>
+
+            <label class="form-label fw-semibold mt-3">Discount (%)</label>
+            <input type="number" name="discount" class="form-control dark-input" value="0" step="0.01">
+
+            <label class="form-label fw-semibold mt-3">Cash Received</label>
+            <input type="number" name="cash_received" class="form-control dark-input" value="0" step="0.01">
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-success px-5 py-2 glow-button">
+            <i class="bi bi-check-circle me-1"></i> Save Sale
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 🔧 Auto Calculation -->
+
+<script>
+  const price = document.querySelector('[name="price"]');
+  const quantity = document.querySelector('[name="quantity"]');
+  const gst = document.querySelector('[name="gst"]');
+  const discount = document.querySelector('[name="discount"]');
+  const total = document.getElementById('total_price');
+
+  function calculateTotal() {
+    const p = parseFloat(price?.value) || 0;
+    const q = parseFloat(quantity?.value) || 0;
+    const g = parseFloat(gst?.value) || 0;
+    const d = parseFloat(discount?.value) || 0;
+
+    const base = p * q;
+    const afterDiscount = base - (base * d / 100);
+    const gstAmount = afterDiscount * g / 100;
+    const finalTotal = afterDiscount + gstAmount;
+
+    total.value = finalTotal.toFixed(2);
+  }
+
+  [price, quantity, gst, discount].forEach(input => {
+    input?.addEventListener('input', calculateTotal);
+  });
+
+  // Trigger once on page load
+  calculateTotal();
+</script>
+<!-- 🔧 Styling -->
+<style>
+  .dark-input {
+    border: 1px solid #343a40 !important;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fff;
+    color: #212529;
+    transition: all 0.3s ease;
+  }
+  .dark-input:hover {
+    border-color: #198754 !important;
+    box-shadow: 0 0 6px rgba(25, 135, 84, 0.35);
+  }
+  .dark-input:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 10px rgba(25, 135, 84, 0.55);
+    outline: none;
+  }
+  .glow-button {
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+  }
+  .glow-button:hover {
+    background-color: #157347;
+    box-shadow: 0 0 15px rgba(25, 135, 84, 0.6);
+    transform: translateY(-2px);
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

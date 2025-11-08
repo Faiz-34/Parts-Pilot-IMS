@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid px-3 px-md-4 py-3" style="background-color: #f8f9fa; min-height: 100vh;">
+
+  <!-- 🔹 Page Title -->
+  <div class="text-center mb-4">
+    <h2 class="fs-3 fw-bold text-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> Low Stock Products
+    </h2>
+  </div>
+
+  <!-- 🔹 Inventory Alert Card -->
+  <div class="card shadow-sm rounded-4 border-0 mx-auto" style="max-width: 900px;">
+    <div class="card-header bg-light fw-semibold">
+      <i class="bi bi-boxes text-secondary me-2"></i> Inventory Alert
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-bordered table-striped align-middle mb-0 text-center">
+          <thead class="table-light">
+            <tr>
+              <th class="px-3 py-2">
+                <i class="bi bi-tag-fill text-purple me-2"></i> Product
+              </th>
+              <th class="px-3 py-2">
+                <i class="bi bi-box-fill text-warning me-2"></i> Quantity
+              </th>
+              <th class="px-3 py-2">
+                <i class="bi bi-arrow-repeat text-danger me-2"></i> Reorder Level
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in low_stock %}
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.quantity }}</td>
+              <td>{{ product.reorder_level }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center text-muted py-4">
+                <i class="bi bi-check-circle-fill text-success me-2"></i> No low stock products detected.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔧 Icon Color -->
+<style>
+  .text-purple {
+    color: #6f42c1;
+  }
+</style>
+
+{% endblock %}
